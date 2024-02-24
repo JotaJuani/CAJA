@@ -7,7 +7,21 @@ from modelo import ModeloPoo
 
 
 class Ventanita:
+    
+    
+    def setProvider(self, main_frame2):
+        provider = self.modelopoo1.getProviderByIndex(self.entry_proveedor.current())
+        print(provider)
+        self.entry_cantidad = ttk.Spinbox(
+            main_frame2, from_=1, to_=10, textvariable=self.var_cantidad)
+        self.entry_cantidad.grid(row=1, column=1, padx=10, pady=10)
+        product = self.modelopoo1.get_lista_productos(provider['id'])
+        product = product if product else [{}]
+        formatted_products = [f"{prod ['nombre']}" for prod in product]
+        self.entry_producto['values'] = formatted_products
+
     def __init__(self, windows):
+        
         self.modelopoo1 = ModeloPoo()
         self.var_metodo_pago = StringVar()
         self.var_dnipac = StringVar()
@@ -94,23 +108,19 @@ class Ventanita:
         provider = provider if provider else [{}]
         formatted_providers = [f"{prov['nombre']}" for prov in provider]
         # ({prov['id']})
+        
         self.entry_proveedor['values'] = formatted_providers
         self.entry_proveedor.current(0)
         self.entry_producto = ttk.Combobox(
             main_frame2, textvariable=self.var_producto)
         self.entry_producto.grid(row=3, column=0, padx=10, pady=10)
-        #idproduct = self.modelopoo1.getProviderByIndex(0)
-        # product = self.modelopoo1.get_lista_productos()
-        # product = product if product else [{}]
-        # formatted_products = [f"{prod ['nombre']}" for prod in product]
-        # self.entry_producto['values'] = formatted_products
+        self.entry_proveedor.bind("<<ComboboxSelected>>", lambda _ : self.setProvider(main_frame2)
+)
+       
 
         # cant_default = StringVar()
         self.var_cantidad.set("1")
-        self.entry_cantidad = ttk.Spinbox(
-            main_frame2, from_=1, to_=10, textvariable=self.var_cantidad)
-        self.entry_cantidad.grid(row=1, column=1, padx=10, pady=10)
-
+        
         self.entry_precio = Entry(
             main_frame2, textvariable=self.var_precio, bg="#FFDDDD")
         self.entry_precio.grid(row=3, column=1, padx=10, pady=10)

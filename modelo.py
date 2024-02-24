@@ -27,7 +27,7 @@ class id_proveedores(BaseModel):
 
 class id_productos(BaseModel):
     id = PrimaryKeyField()
-    idproveedor = ForeignKeyField(id_proveedores, field='id')
+    idproveedor = ForeignKeyField(id_proveedores, to_field='id')
     PRODUCTOS = CharField()
 
 
@@ -154,12 +154,10 @@ class ModeloPoo():
     ):
         pass
 
-    def getProviderByIndex(index):
-        return lista_proveedores[index] if lista_proveedores[index] >= 0 else 0
-
+    
     def get_lista_proveedores(self):
         listToReturn = []
-        lista_proveedores = []
+        global lista_proveedores
         if len(lista_proveedores) > 0:
             listToReturn = lista_proveedores
         else:
@@ -169,21 +167,24 @@ class ModeloPoo():
                 lista_proveedores = listToReturn
         return listToReturn
 
-    def get_lista_productos(idproveedor):
+    def getProviderByIndex(self, index):
+        return lista_proveedores[index] if len(lista_proveedores[index]) >= 0 else []
+
+    def get_lista_productos(self,idproveedor):
         lista_productos = []
-        result = id_productos.select().where("idproveedor" == idproveedor)
-        for producto in result:
+       
+        for producto in id_productos.select().where("idproveedor" == idproveedor):
             lista_productos.append(
-                {"id": producto.idproveedor, "nombre": producto.PRODUCTOS})
+                {"id": producto.id, "nombre": producto.PRODUCTOS})
         return lista_productos
 
-    def get_lista_productos():
-        lista_productos = []
-        result = id_productos.select()
-        for producto in result:
-            lista_productos.append(
-                {"id": producto.idproveedor, "nombre": producto.PRODUCTOS})
-        return lista_productos
+    # def get_lista_productos():
+    #     lista_productos = []
+    #     result = id_productos.select()
+    #     for producto in result:
+    #         lista_productos.append(
+    #             {"id": producto.idproveedor, "nombre": producto.PRODUCTOS})
+    #     return lista_productos
 
     @actu_actualizacion
     def actualizar_treeview(self, mitreview):
