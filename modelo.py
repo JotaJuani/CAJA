@@ -64,10 +64,6 @@ except:
         #############################################
 """
 
-# proveedores_seleccionados = id_proveedores.select()
-# for proveedor in proveedores_seleccionados:
-#     print(f"ID: {proveedor.id}, Proveedor: {proveedor.proveedor}")
-
 
 def alta_alta(func):
     def wrapper(*args, **kwargs):
@@ -155,11 +151,13 @@ class ModeloPoo():
         pass
 
     def getProviderByIndex(index):
+        print(lista_proveedores)
         return lista_proveedores[index] if lista_proveedores[index] >= 0 else 0
 
     def get_lista_proveedores(self):
+        global lista_proveedores
         listToReturn = []
-        lista_proveedores = []
+
         if len(lista_proveedores) > 0:
             listToReturn = lista_proveedores
         else:
@@ -169,21 +167,14 @@ class ModeloPoo():
                 lista_proveedores = listToReturn
         return listToReturn
 
-    def get_lista_productos(idproveedor):
-        lista_productos = []
-        result = id_productos.select().where("idproveedor" == idproveedor)
-        for producto in result:
-            lista_productos.append(
-                {"id": producto.idproveedor, "nombre": producto.PRODUCTOS})
-        return lista_productos
-
-    def get_lista_productos():
-        lista_productos = []
-        result = id_productos.select()
-        for producto in result:
-            lista_productos.append(
-                {"id": producto.idproveedor, "nombre": producto.PRODUCTOS})
-        return lista_productos
+    def get_productos_por_proveedor(self, id_proveedor):
+        try:
+            productos_por_proveedor = id_productos.select().where(
+                id_productos.idproveedor == id_proveedor)
+            return [{"nombre": producto.PRODUCTOS, "id": producto.id}
+                    for producto in productos_por_proveedor]
+        except DoesNotExist:
+            return []
 
     @actu_actualizacion
     def actualizar_treeview(self, mitreview):
@@ -418,33 +409,3 @@ class ModeloPoo():
             datetime.now().strftime("%Y-%m-%d-%H%M%S") + ".docx"
         doc.save(doc_name)
         showinfo("Alta recibo", "El recibo esta listo para imprimir")
-
-
-'''
-#
-        class Ventas(BaseModel):
-    dnipac = IntegerField()
-    var_nombre_paciente = CharField()
-    var_apellido_paciente = CharField()
-    proveedor = CharField()
-    producto = CharField()
-    var_cantidad = IntegerField()
-    precio = DecimalField()
-    medico = CharField()
-    fecha_inicio = DateTimeField()
-    metodo_pago = CharField()
-
-
-try:
-    db.connect()
-    db.create_tables([Ventas])
-
-except:
-    print("La tabla ya existe")
-
-'''
-
-# select * from pacientes
-# Join ventas  as ventas
-# on vestas.pacientes == pacientes.id
-# where pacientes.baja != False

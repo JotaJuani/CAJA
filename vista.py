@@ -7,6 +7,8 @@ from modelo import ModeloPoo
 
 
 class Ventanita:
+    formatted_index = [{}]
+
     def __init__(self, windows):
         self.modelopoo1 = ModeloPoo()
         self.var_metodo_pago = StringVar()
@@ -33,10 +35,6 @@ class Ventanita:
         self.root = tk.Frame()
         self.root.pack()
         self.root.configure(bg="lightpink")
-
-        # self.entry_fecha_inicio = Label(
-        #    self.root, text=self.var_fecha_inicio, bg="#FFDDDD")
-        # self.entry_fecha_inicio.grid(row=0, column=1)
 
         # frame 1
         main_frame1 = tk.LabelFrame(
@@ -88,24 +86,44 @@ class Ventanita:
 
         # entries frame2
         self.entry_proveedor = ttk.Combobox(
-            main_frame2, textvariable=self.var_proveedor)
+            main_frame2)
         self.entry_proveedor.grid(row=1, column=0, padx=10, pady=10)
         provider = self.modelopoo1.get_lista_proveedores()
         provider = provider if provider else [{}]
         formatted_providers = [f"{prov['nombre']}" for prov in provider]
-        # ({prov['id']})
+        formatted_index = [f"{prov['id']}" for prov in provider]
         self.entry_proveedor['values'] = formatted_providers
-        self.entry_proveedor.current(0)
-        self.entry_producto = ttk.Combobox(
-            main_frame2, textvariable=self.var_producto)
-        self.entry_producto.grid(row=3, column=0, padx=10, pady=10)
-        #idproduct = self.modelopoo1.getProviderByIndex(0)
+        # self.entry_proveedor.current(0)
+        print(formatted_index)
+
+        # if selected_provider:
+        #     selcted = formatted_index[selected_provider]
+        #     print(selcted)
+        #  productos_por_proveedor = self.modelopoo1.get_productos_por_proveedor(selected_provider['id'])
+        #  formatted_productos = [f"{producto['nombre']}" for producto in productos_por_proveedor]
+        #  self.entry_producto['values'] = formatted_productos
+        #  self.entry_producto.current(0)  # Establecer la selección inicial si es necesari
+        def on_proveedor_selected(event):
+            provider = event.widget.get()
+            productos_por_proveedor = self.modelopoo1.get_productos_por_proveedor(productos_por_proveedor["id"])
+            print(productos_por_proveedor)
+        self.entry_proveedor.bind(
+            "<<ComboboxSelected>>", on_proveedor_selected)
+       # idproduct = self.modelopoo1.getProviderByIndex()
         # product = self.modelopoo1.get_lista_productos()
         # product = product if product else [{}]
         # formatted_products = [f"{prod ['nombre']}" for prod in product]
         # self.entry_producto['values'] = formatted_products
 
-        # cant_default = StringVar()
+        # get_index = self.entry_proveedor.current()
+        # index = self.get_index.self.modeloopoo1
+        # get_index =  lambda x : self.modelopoo1.get_productos_por_proveedor
+        # self.entry_producto = productos_por_index
+
+        self.entry_producto = ttk.Combobox(
+            main_frame2)
+        self.entry_producto.grid(row=3, column=0, padx=10, pady=10)
+
         self.var_cantidad.set("1")
         self.entry_cantidad = ttk.Spinbox(
             main_frame2, from_=1, to_=10, textvariable=self.var_cantidad)
@@ -192,10 +210,10 @@ class Ventanita:
                 self.var_metodo_pago,
                 self.tree,
             ),
-            bg="#FF69B4",  
+            bg="#FF69B4",
             fg="white",
-            relief="flat", 
-            borderwidth=2  
+            relief="flat",
+            borderwidth=2
         )
 
         self.boton_alta.grid(row=6, column=1, pady=(
@@ -205,10 +223,10 @@ class Ventanita:
             main_frame6,
             text="Borrar",
             command=lambda: self.modelopoo1.borrar(self.tree),
-            bg="#FF69B4",  
+            bg="#FF69B4",
             fg="white",
-            relief="flat", 
-            borderwidth=2  
+            relief="flat",
+            borderwidth=2
         )
         self.boton_borrar.grid(row=6, column=7, pady=(
             10), padx=(50), sticky=tk.W + tk.E)
@@ -229,10 +247,10 @@ class Ventanita:
                 self.var_metodo_pago,
                 self.tree,
             ),
-            bg="#FF69B4",  
+            bg="#FF69B4",
             fg="white",
-            relief="flat", 
-            borderwidth=2  
+            relief="flat",
+            borderwidth=2
         )
         self.boton_seleccionar.grid(row=6, column=2, pady=(
             10), padx=(50), sticky=tk.W + tk.E)
@@ -253,10 +271,10 @@ class Ventanita:
                 self.var_metodo_pago,
                 self.tree,
             ),
-            bg="#FF69B4", 
+            bg="#FF69B4",
             fg="white",
             relief="flat",
-            borderwidth=2 
+            borderwidth=2
         )
         self.boton_modificar.grid(row=6, column=5, pady=(
             10), padx=(50), sticky=tk.W + tk.E)
@@ -272,23 +290,30 @@ class Ventanita:
                 self.var_fecha_inicio,
 
             ),
-            bg="#FF69B4", 
+            bg="#FF69B4",
             fg="white",
-            relief="flat", 
-            borderwidth=2  
+            relief="flat",
+            borderwidth=2
         )
         self.boton_imprimir.grid(row=6, column=4, pady=(
             10), padx=(50), sticky=tk.W + tk.E)
 
+
+
+
     def getProviderIndex(combo):
         return combo.current()
-    
 
     def actualiza_inicial(
         self,
     ):
         self.modelopoo1.actualizar_treeview(self.tree)
 
+    # def on_proveedor_selected(event):
+    #     provider = event.widget.get()
+    #     print(provider)
+    # selected_index = self.entry_proveedor.current()
+    # selected_provider = self.modelopoo1.getProviderByIndex(selected_index)
         #########################
         ##### TREEVIEW #########
         ########################
@@ -310,3 +335,6 @@ class Ventanita:
         # self.background_label.place(x=500, y=15)
         # self.nombre = Label(self.root, text="Estudio LR")
         # self.nombre.place(x=515, y=120)
+
+
+
