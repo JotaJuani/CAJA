@@ -1,15 +1,22 @@
 import tkinter as tk
-import sys
-import os
 import datetime as dt
 from tkinter import StringVar, Label, Entry, ttk, Radiobutton, Button
 from modelo import ModeloPoo
 
-
 class Ventanita:
-    formatted_index = [{}]
+    def setProvider(self, main_frame2):
+        provider = self.modelopoo1.getProviderByIndex(
+            self.entry_proveedor.current())
+        print(provider)
+    
+        product = self.modelopoo1.get_lista_productos(provider)
+        product = product if product else [{}]
+        formatted_products = [ f"{prod ['nombre']}" for prod in product if 'nombre' in prod]
 
+        self.entry_producto['values'] = formatted_products
+ 
     def __init__(self, windows):
+
         self.modelopoo1 = ModeloPoo()
         self.var_metodo_pago = StringVar()
         self.var_dnipac = StringVar()
@@ -22,12 +29,8 @@ class Ventanita:
         self.var_precio = StringVar()
         self.var_medico = StringVar()
         self.var_fecha_inicio = dt.datetime.now().strftime("%Y-%m.%d %H:%M")
-        # self.var_metodo_pago = StringVar()
 
-        ###################
         ###### VISTA ######
-        ###################
-
         self.root = windows
         self.root.title("Ortopedia Almafuete ")
         self.root.geometry("800x760")
@@ -41,11 +44,12 @@ class Ventanita:
             self.root, width=500, height=75, text="Ingrese los datos del paciente")
         main_frame1.grid(row=0, column=0, padx=10, pady=10)
         # labels 1
-
-        self.dnipac = Label(main_frame1, text="DNI", bg="#FFCCCC")
+        self.dnipac = Label(
+            main_frame1, text="DNI", bg="#FFCCCC")
         self.dnipac.grid(row=0, column=0, padx=10, pady=10)
 
-        self.name_paciente = Label(main_frame1, text="Nombre", bg="#FFCCCC")
+        self.name_paciente = Label(
+            main_frame1, text="Nombre", bg="#FFCCCC")
         self.name_paciente.grid(row=0, column=1, padx=10, pady=10)
 
         self.surname_paciente = Label(
@@ -65,9 +69,7 @@ class Ventanita:
             main_frame1, textvariable=self.var_apellido_paciente, bg="#FFDDDD")
         self.entry_surname_paciente.grid(row=1, column=3, padx=10, pady=10)
 
-        #####
         # frame 2
-        ######
         main_frame2 = tk.LabelFrame(self.root, text="Datos del producto")
         main_frame2.grid(row=1, column=0, sticky="nswe", padx=10, pady=10)
         # labels 2
@@ -86,66 +88,33 @@ class Ventanita:
 
         # entries frame2
         self.entry_proveedor = ttk.Combobox(
-            main_frame2)
+            main_frame2, textvariable=self.var_proveedor)
         self.entry_proveedor.grid(row=1, column=0, padx=10, pady=10)
         provider = self.modelopoo1.get_lista_proveedores()
         provider = provider if provider else [{}]
         formatted_providers = [f"{prov['nombre']}" for prov in provider]
-        formatted_index = [f"{prov['id']}" for prov in provider]
+
         self.entry_proveedor['values'] = formatted_providers
-        # self.entry_proveedor.current(0)
-        print(formatted_index)
-
-        # if selected_provider:
-        #     selcted = formatted_index[selected_provider]
-        #     print(selcted)
-        #  productos_por_proveedor = self.modelopoo1.get_productos_por_proveedor(selected_provider['id'])
-        #  formatted_productos = [f"{producto['nombre']}" for producto in productos_por_proveedor]
-        #  self.entry_producto['values'] = formatted_productos
-        #  self.entry_producto.current(0)  # Establecer la selección inicial si es necesari
-        def on_proveedor_selected(event):
-            provider = event.widget.get()
-            productos_por_proveedor = self.modelopoo1.get_productos_por_proveedor(productos_por_proveedor["id"])
-            print(productos_por_proveedor)
-        self.entry_proveedor.bind(
-            "<<ComboboxSelected>>", on_proveedor_selected)
-       # idproduct = self.modelopoo1.getProviderByIndex()
-        # product = self.modelopoo1.get_lista_productos()
-        # product = product if product else [{}]
-        # formatted_products = [f"{prod ['nombre']}" for prod in product]
-        # self.entry_producto['values'] = formatted_products
-
-        # get_index = self.entry_proveedor.current()
-        # index = self.get_index.self.modeloopoo1
-        # get_index =  lambda x : self.modelopoo1.get_productos_por_proveedor
-        # self.entry_producto = productos_por_index
-
+        self.entry_proveedor.current(0)
         self.entry_producto = ttk.Combobox(
-            main_frame2)
+            main_frame2, textvariable=self.var_producto)
         self.entry_producto.grid(row=3, column=0, padx=10, pady=10)
+        self.entry_proveedor.bind("<<ComboboxSelected>>", lambda _: self.setProvider (main_frame2))
+        self.setProvider(main_frame2)
 
-        self.var_cantidad.set("1")
         self.entry_cantidad = ttk.Spinbox(
-            main_frame2, from_=1, to_=10, textvariable=self.var_cantidad)
+        main_frame2, from_=1, to_=10, textvariable=self.var_cantidad)
         self.entry_cantidad.grid(row=1, column=1, padx=10, pady=10)
+        self.var_cantidad.set("1") 
 
         self.entry_precio = Entry(
             main_frame2, textvariable=self.var_precio, bg="#FFDDDD")
         self.entry_precio.grid(row=3, column=1, padx=10, pady=10)
-        ###############
-        ##############
-        #############
-        #############
-        # self.var_medico = StringVar()
         self.var_medico.set(" Seleccione un médico")
 
         self.var_medico_combobox = ttk.Combobox(main_frame2, textvariable=self.var_medico, values=[
             "Di Menna", "Halliburton", "Maenza", "Rochas L", "Rochas E", "Loma"])
         self.var_medico_combobox.grid(row=2, column=3, padx=10, pady=10)
-        ###########
-        ###########
-        ###########
-        ###########
         self.label_pago = tk.Label(main_frame2, text="Método de pago")
         self.label_pago.grid(row=0, column=5, sticky="w", padx=25, pady=25)
 
@@ -159,13 +128,11 @@ class Ventanita:
             main_frame2, text="Tarjeta", variable=self.var_metodo_pago, value="Tarjeta", padx=10, pady=10)
         tarjetas_radio_button.grid(row=3, column=5, padx=25, pady=10)
 
-        #####
         # frame 4
-        #####
         main_frame4 = tk.LabelFrame(self.root, text="Ventas")
         main_frame4.grid(row=3, column=0, sticky="nswe", padx=10, pady=10)
-        self.tree = ttk.Treeview(main_frame4)
 
+        self.tree = ttk.Treeview(main_frame4)
         self.tree["columns"] = ("col1", "col2", "col3",
                                 "col4", "col5", "col6", "col7")
         self.tree.column("#0", width=50, minwidth=50, anchor="w")
@@ -178,22 +145,19 @@ class Ventanita:
         self.tree.column("col7", width=150, minwidth=80, anchor="w")
 
         self.tree.heading("#0", text="id")
-        self.tree.heading("col1", text="DNI")
-        self.tree.heading("col2", text="Fecha")
-        self.tree.heading("col3", text="Proveedor")
-        self.tree.heading("col4", text="Producto")
-        self.tree.heading("col5", text="Cantidad")
-        self.tree.heading("col6", text="Precio")
-        self.tree.heading("col7", text="Metodo de Pago")
+        self.tree.heading("col1", text="Proveedor")
+        self.tree.heading("col2", text="Producto")
+        self.tree.heading("col3", text="Cantidad")
+        self.tree.heading("col4", text="Precio")
+        self.tree.heading("col5", text="Fecha")
+        self.tree.heading("col6", text="Metodo de Pago")
+        self.tree.heading("col7", text="Medico")
         self.tree.grid(row=14, column=0, columnspan=8)
 
         main_frame6 = tk.LabelFrame(self.root, text="")
         main_frame6.grid(row=4, column=0, sticky="nswe", padx=10, pady=10)
 
-        ##################
         ### BOTONES ######
-        ##################
-
         self.boton_alta = Button(
             main_frame6,
             text="Alta",
@@ -298,9 +262,6 @@ class Ventanita:
         self.boton_imprimir.grid(row=6, column=4, pady=(
             10), padx=(50), sticky=tk.W + tk.E)
 
-
-
-
     def getProviderIndex(combo):
         return combo.current()
 
@@ -308,33 +269,3 @@ class Ventanita:
         self,
     ):
         self.modelopoo1.actualizar_treeview(self.tree)
-
-    # def on_proveedor_selected(event):
-    #     provider = event.widget.get()
-    #     print(provider)
-    # selected_index = self.entry_proveedor.current()
-    # selected_provider = self.modelopoo1.getProviderByIndex(selected_index)
-        #########################
-        ##### TREEVIEW #########
-        ########################
-
-        #######################
-        ####### LOGO #########
-        #######################
-
-        # self.BASE_DIR = os.path.dirname((os.path.abspath(__file__)))
-        # self.ruta = os.path.join(self.BASE_DIR, "logo_lr.png")
-
-        ###############################
-        ########## VISTA FOTO #########
-        ###############################
-
-        # self.image2 = Image.open(self.ruta)
-        # self.image1 = ImageTk.PhotoImage(self.image2)
-        # self.background_label = tk.Label(self.root, image=self.image1)
-        # self.background_label.place(x=500, y=15)
-        # self.nombre = Label(self.root, text="Estudio LR")
-        # self.nombre.place(x=515, y=120)
-
-
-

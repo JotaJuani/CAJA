@@ -5,31 +5,20 @@ from docxtpl import DocxTemplate
 from datetime import datetime
 from peewee import *
 
-
-"""
-        ############################
-        ###### BASE DE DATOS ######
-        ############################
-"""
-
 db = SqliteDatabase("mi_base2.db")
-
 
 class BaseModel(Model):
     class Meta:
         database = db
 
-
 class id_proveedores(BaseModel):
     id = PrimaryKeyField()
     proveedores = CharField()
 
-
 class id_productos(BaseModel):
     id = PrimaryKeyField()
-    idproveedor = ForeignKeyField(id_proveedores, field='id')
+    idproveedor_id = ForeignKeyField(id_proveedores, to_field='id')
     PRODUCTOS = CharField()
-
 
 class pacientes(BaseModel):
     id = PrimaryKeyField()
@@ -37,10 +26,8 @@ class pacientes(BaseModel):
     var_nombre_paciente = CharField()
     var_apellido_paciente = CharField()
 
-
 class Ventas(BaseModel):
-    # dnipac = IntegerField()
-    paciente = ForeignKeyField(model=pacientes, field='id')
+    paciente_id = ForeignKeyField(model=pacientes, to_field='id')
     proveedor = ForeignKeyField(id_proveedores, field='id')
     producto = CharField()
     var_cantidad = IntegerField()
@@ -48,7 +35,7 @@ class Ventas(BaseModel):
     medico = CharField()
     fecha_inicio = DateTimeField()
     metodo_pago = CharField()
-
+    dnipac = IntegerField()
 
 try:
     db.connect()
@@ -56,14 +43,6 @@ try:
 
 except:
     print("La tabla ya existe")
-
-
-"""
-        #############################################
-        ######## FUNCIONES PARA DECORADORES #########
-        #############################################
-"""
-
 
 def alta_alta(func):
     def wrapper(*args, **kwargs):
@@ -74,8 +53,7 @@ def alta_alta(func):
             v1 = x.get()
 
         alta_registro = os.path.dirname(
-            (os.path.abspath(__file__)) + "\\alta_registro.txt"
-        )
+            (os.path.abspath(__file__)) + "\\alta_registro.txt")
 
         fecha_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         texto = "Alta " + str(v1) + " " + fecha_hora + "\n"
@@ -87,9 +65,8 @@ def alta_alta(func):
 
     return wrapper
 
-
 def baja_eliminacion(func):
-    def wrapper(*args, **kwargs):
+    def wrapper( *args, **kwargs):
         baja_registro = os.path.dirname(
             (os.path.abspath(__file__)) + "\\baja_registro.txt"
         )
@@ -103,9 +80,8 @@ def baja_eliminacion(func):
 
     return wrapper
 
-
 def modifica_registro(func):
-    def wrapper(*args, **kwargs):
+    def wrapper(self, *args, **kwargs):
         modif_registro = os.path.dirname(
             (os.path.abspath(__file__)) + "\\modif_registro.txt"
         )
@@ -115,10 +91,9 @@ def modifica_registro(func):
             modif_registro.write(texto)
 
         showinfo("MODIFICA, REGISTRO")
-        return func(*args, **kwargs)
+        return func(self, *args, **kwargs)
 
     return wrapper
-
 
 def selecciona_registros(func):
     def wrapper(*args, **kwargs):
@@ -127,7 +102,6 @@ def selecciona_registros(func):
 
     return wrapper
 
-
 def actu_actualizacion(func):
     def wrapper(*args, **kwargs):
         showinfo("ACTUALIZA, BASE")
@@ -135,14 +109,7 @@ def actu_actualizacion(func):
 
     return wrapper
 
-
-"""
-        ############################
-        ######## FUNCIONES #########
-        ###########################
-"""
 lista_proveedores = []
-
 
 class ModeloPoo():
     def __init__(
@@ -150,14 +117,9 @@ class ModeloPoo():
     ):
         pass
 
-    def getProviderByIndex(index):
-        print(lista_proveedores)
-        return lista_proveedores[index] if lista_proveedores[index] >= 0 else 0
-
     def get_lista_proveedores(self):
-        global lista_proveedores
         listToReturn = []
-
+        global lista_proveedores
         if len(lista_proveedores) > 0:
             listToReturn = lista_proveedores
         else:
@@ -167,37 +129,34 @@ class ModeloPoo():
                 lista_proveedores = listToReturn
         return listToReturn
 
-    def get_productos_por_proveedor(self, id_proveedor):
-        try:
-            productos_por_proveedor = id_productos.select().where(
-                id_productos.idproveedor == id_proveedor)
-            return [{"nombre": producto.PRODUCTOS, "id": producto.id}
-                    for producto in productos_por_proveedor]
-        except DoesNotExist:
-            return []
+    def getProviderByIndex(self, index):
+        return lista_proveedores[index] if len(lista_proveedores[index]) >= 0 else []
+
+    def get_lista_productos(self, idproveedor_id):
+        lista_productos = []
+        providerid = idproveedor_id["id"]
+        for producto in id_productos.select().where(id_productos.idproveedor_id == providerid):
+            lista_productos.append(
+                {"id": producto.id, "nombre": producto.PRODUCTOS})
+        return lista_productos
 
     @actu_actualizacion
     def actualizar_treeview(self, mitreview):
         records = mitreview.get_children()
         for element in records:
             mitreview.delete(element)
-           # Ventas.get(Ventas.paciente_id != None)
+           
         for fila in Ventas.select():
-            mitreview.insert(
-                "",
-                0,
-                text=fila.id,
+            mitreview.insert("", 0, text=fila.id,
                 values=(
-                    fila.paciente_id,
-                    fila.fecha_inicio,
                     fila.proveedor_id,
                     fila.producto,
                     fila.var_cantidad,
-                    fila.precio,
+                    fila.precio,    
+                    fila.fecha_inicio,
                     fila.metodo_pago,
-                    fila.medico,
-
-                ),
+                    fila.medico                    
+                ) 
             )
 
     @alta_alta
@@ -216,10 +175,8 @@ class ModeloPoo():
         tree,
     ):
         cadena = var_nombre_paciente.get()
-        patron_letras = "^[A-Za-záéíóúñ  ]*$"  # Regex para caracteres letras
+        patron_letras = "^[A-Za-záéíóúñ  ]*$" 
         cadena1 = var_apellido_paciente.get()
-
-        patron_numeros = "^[0-9]+$"  # Regex para caracteres numericos
         if not re.match(patron_letras, cadena):
             print("Error in nombre")
         if not re.match(patron_letras, cadena1):
@@ -234,22 +191,20 @@ class ModeloPoo():
             paciente.dni = dnipac.get()
             paciente.var_nombre_paciente = var_nombre_paciente.get()
             paciente.var_apellido_paciente = var_apellido_paciente.get()
-            proveedores.proveedor = proveedor.get()
-            productos.producto = producto.get()
+            proveedores.proveedores= proveedor.get()
+            productos.PRODUCTOS = producto.get()
             ventas.var_cantidad = var_cantidad.get()
             ventas.precio = precio.get()
-            medico_seleccionado = var_medico.get()
-            ventas.medico = medico_seleccionado
+            ventas.medico = var_medico.get()
             ventas.medico = var_medico.get()
             ventas.fecha_inicio = var_fecha_inicio
-
-            metodo_p_seleccionado = var_metodo_pago.get()
-            ventas.metodo_pago = metodo_p_seleccionado
+            ventas.metodo_pago = var_metodo_pago.get()
             paciente.save()
-            ventas.paciente = paciente
-
-            print(ventas)
+            productos.save()
             ventas.save()
+            proveedores.save()
+            
+            print(f"este es el alta de ventas {ventas.medico}")       
             valor = precio.get()
             valor = int(valor)
             valor_registro = (
@@ -265,7 +220,7 @@ class ModeloPoo():
                 var_metodo_pago.get(),
             )
             valor_registro = valor_registro
-            print(valor_registro)
+            print(f"Esta es la impresion de valor registro{valor_registro}")
             dnipac.set(" ")
             var_nombre_paciente.set(" ")
             var_apellido_paciente.set(" ")
@@ -308,20 +263,18 @@ class ModeloPoo():
         var_cantidad,
         precio,
         var_medico,
-        var_fecha_inicio,
         var_metodo_pago,
         tree,
     ):
         cadena = var_nombre_paciente.get()
-        patron_letras = "^[A-Za-záéíóúñ]*$"  # Regex para caracteres letras
+        patron_letras = "^[A-Za-záéíóúñ]*$"  
         cadena1 = var_apellido_paciente.get()
-        patron_numeros = "^[0-9]+$"  # Regex para caracteres numericos
 
         if re.match(patron_letras, cadena) and re.match(patron_letras, cadena1):
             valor = tree.selection()
             item = tree.item(valor)
             mi_id = item["text"]
-            valor = (mi_id,)
+            valor = (mi_id)
             modifica = Ventas.get(Ventas.id == valor)
             modifica = Ventas.update(
                 dnipac=dnipac.get(),
@@ -332,8 +285,7 @@ class ModeloPoo():
                 var_cantidad=var_cantidad.get(),
                 precio=precio.get(),
                 var_medico=var_medico.get(),
-                fecha_inicio=var_fecha_inicio,
-                var_metodo_pago=var_metodo_pago.get(),
+                var_metodo_pago=var_metodo_pago.get()
             ).where(Ventas.id == valor)
             modifica.execute()
             valor1 = precio.get()
@@ -346,7 +298,6 @@ class ModeloPoo():
             var_cantidad.set("")
             precio.set("")
             var_medico.set("")
-            var_fecha_inicio
             var_metodo_pago.set("")
             self.actualizar_treeview(tree)
             if valor1 >= 0:
@@ -377,17 +328,17 @@ class ModeloPoo():
         item = tree.item(valor)
         mi_id = item["text"]
         mi_id = int(mi_id)
-        valor = (mi_id,)
-        dnipac.set(item["values"][0])
-        var_nombre_paciente.set(item["values"][1])
-        var_apellido_paciente.set(item["values"][2])
-        proveedor.set(item["values"][3])
-        producto.set(item["values"][4])
-        var_cantidad.set(item["values"][5])
-        precio.set(item["values"][6])
-        var_medico.set(item["values"][7])
-        var_fecha_inicio.set(item["values"][8])
-        metodo_de_pago.set(item["values"][9])
+        valor = (mi_id)
+        #dnipac.set(item["values"][0])
+        #var_nombre_paciente.set(item["values"][1])
+        #var_apellido_paciente.set(item["values"][2])
+        proveedor.set(item["values"][0])
+        producto.set(item["values"][1])
+        var_cantidad.set(item["values"][2])
+        precio.set(item["values"][3])
+        var_medico.set(item["values"][4])
+        #var_fecha_inicio.set(item["values"][8])
+        metodo_de_pago.set(item["values"][5])
         print("HA SELECCIONADO UN REGISTRO")
 
     def imprimir(self, var_dnipac, var_producto, var_proveedor, var_precio, var_fecha_inicio):
