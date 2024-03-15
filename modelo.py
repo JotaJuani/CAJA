@@ -27,7 +27,7 @@ class pacientes(BaseModel):
     var_apellido_paciente = CharField()
 
 class Ventas(BaseModel):
-    paciente_id = ForeignKeyField(model=pacientes, to_field='id')
+    paciente_id = ForeignKeyField(model=pacientes, field='id')
     proveedor = ForeignKeyField(id_proveedores, field='id')
     producto = CharField()
     var_cantidad = IntegerField()
@@ -96,16 +96,16 @@ def modifica_registro(func):
     return wrapper
 
 def selecciona_registros(func):
-    def wrapper(*args, **kwargs):
+    def wrapper(self,*args, **kwargs):
         showinfo("SELECCION, REGISTRO")
-        return func(*args, **kwargs)
+        return func(self, *args, **kwargs)
 
     return wrapper
 
 def actu_actualizacion(func):
-    def wrapper(*args, **kwargs):
+    def wrapper(self,*args, **kwargs):
         showinfo("ACTUALIZA, BASE")
-        return func(*args, **kwargs)
+        return func(self, *args, **kwargs)
 
     return wrapper
 
@@ -159,6 +159,30 @@ class ModeloPoo():
                 ) 
             )
 
+    def imprimir(self, fecha_inicio, dnipac, producto, proveedor, cantidad, precio, var_metodo_pago):
+            doc = DocxTemplate("invoice1.docx")
+            fecha_inicio = datetime.now().strftime("%Y-%m-%d")
+            dnipac = dnipac.get()
+            producto = producto.get()        
+            proveedor = proveedor.get()
+            cantidad = cantidad.get()
+            precio = precio.get()
+            var_metodo_pago = var_metodo_pago.get() 
+
+            doc.render({"var_fecha_inicio": fecha_inicio,
+                        "var_dnipac": dnipac,
+                        "var_producto": producto,
+                        "var_proveedor": proveedor,
+                        "var_cantidad": cantidad,
+                        "var_precio": precio, 
+                        "metodo_pago": var_metodo_pago,
+                        })
+
+            doc_name =  producto + "Recibo_de_venta" +\
+                datetime.now().strftime("%Y-%m-%d") + ".docx"
+            doc.save(doc_name)
+            showinfo("Alta recibo", "El recibo esta listo para imprimir")
+
     @alta_alta
     def alta(
         self,
@@ -181,7 +205,7 @@ class ModeloPoo():
             print("Error in nombre")
         if not re.match(patron_letras, cadena1):
             print("Error in apellido")
-
+ 
         if re.match(patron_letras, cadena) and re.match(patron_letras, cadena1):
             ventas = Ventas()
             paciente = pacientes()
@@ -191,20 +215,20 @@ class ModeloPoo():
             paciente.dni = dnipac.get()
             paciente.var_nombre_paciente = var_nombre_paciente.get()
             paciente.var_apellido_paciente = var_apellido_paciente.get()
-            proveedores.proveedores= proveedor.get()
-            productos.PRODUCTOS = producto.get()
+            ventas.proveedor_id= proveedor.get()
+            ventas.producto = producto.get()
             ventas.var_cantidad = var_cantidad.get()
             ventas.precio = precio.get()
             ventas.medico = var_medico.get()
             ventas.medico = var_medico.get()
             ventas.fecha_inicio = var_fecha_inicio
             ventas.metodo_pago = var_metodo_pago.get()
+            
             paciente.save()
             productos.save()
-            ventas.save()
+            ventas.save() 
             proveedores.save()
-            
-            print(f"este es el alta de ventas {ventas.medico}")       
+ 
             valor = precio.get()
             valor = int(valor)
             valor_registro = (
@@ -278,14 +302,14 @@ class ModeloPoo():
             modifica = Ventas.get(Ventas.id == valor)
             modifica = Ventas.update(
                 dnipac=dnipac.get(),
-                var_nombre_paciente=var_nombre_paciente.get(),
-                var_apellido_paciente=var_apellido_paciente.get(),
-                proveedor=proveedor.get(),
-                producto=producto.get(),
-                var_cantidad=var_cantidad.get(),
-                precio=precio.get(),
-                var_medico=var_medico.get(),
-                var_metodo_pago=var_metodo_pago.get()
+                #var_nombre_paciente = var_nombre_paciente.get(),
+                #var_apellido_paciente = var_apellido_paciente.get(),
+                proveedor = proveedor.get(),
+                producto = producto.get(),
+                var_cantidad = var_cantidad.get(),
+                precio = precio.get(),
+                var_medico = var_medico.get(),
+                var_metodo_pago = var_metodo_pago.get()
             ).where(Ventas.id == valor)
             modifica.execute()
             valor1 = precio.get()
@@ -341,22 +365,4 @@ class ModeloPoo():
         metodo_de_pago.set(item["values"][5])
         print("HA SELECCIONADO UN REGISTRO")
 
-    def imprimir(self, var_dnipac, var_producto, var_proveedor, var_precio, var_fecha_inicio):
-        doc = DocxTemplate("invoice1.docx")
-        dnipac = var_dnipac.get()
-        producto = var_producto.get()
-        proveedor = var_proveedor.get()
-        precio = var_precio.get()
-        fecha_inicio = var_fecha_inicio.get()
-
-        doc.render({"var_fecha_inicio": fecha_inicio,
-                    "var_dnipac": dnipac,
-                    "var_producto": producto,
-                    "var_proveedor": proveedor,
-                    "var_precio": precio
-                    })
-
-        doc_name = "new_invoce" + dnipac + \
-            datetime.now().strftime("%Y-%m-%d-%H%M%S") + ".docx"
-        doc.save(doc_name)
-        showinfo("Alta recibo", "El recibo esta listo para imprimir")
+    

@@ -231,7 +231,6 @@ class Ventanita:
                 self.var_cantidad,
                 self.var_precio,
                 self.var_medico,
-                self.var_fecha_inicio,
                 self.var_metodo_pago,
                 self.tree,
             ),
@@ -247,12 +246,13 @@ class Ventanita:
             main_frame6,
             text="Imprimir",
             command=lambda: self.modelopoo1.imprimir(
+                self.var_fecha_inicio,
                 self.var_dnipac,
                 self.var_producto,
                 self.var_proveedor,
+                self.var_cantidad,
                 self.var_precio,
-                self.var_fecha_inicio,
-
+                self.var_metodo_pago,
             ),
             bg="#FF69B4",
             fg="white",
