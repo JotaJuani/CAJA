@@ -21,13 +21,13 @@ class id_productos(BaseModel):
     PRODUCTOS = CharField()
 
 class pacientes(BaseModel):
-    id = PrimaryKeyField()
+    id_pac = PrimaryKeyField()
     dni = CharField()
     var_nombre_paciente = CharField()
     var_apellido_paciente = CharField()
 
 class Ventas(BaseModel):
-    paciente_id = ForeignKeyField(model=pacientes, field='id')
+    paciente_id = ForeignKeyField(model=pacientes, field='id_pac')
     proveedor = ForeignKeyField(id_proveedores, field='id')
     producto = CharField()
     var_cantidad = IntegerField()
@@ -153,9 +153,9 @@ class ModeloPoo():
                     fila.producto,
                     fila.var_cantidad,
                     fila.precio,    
-                    fila.fecha_inicio,
+                    fila.medico,
                     fila.metodo_pago,
-                    fila.medico                    
+                    fila.fecha_inicio                    
                 ) 
             )
 
@@ -215,6 +215,9 @@ class ModeloPoo():
             paciente.dni = dnipac.get()
             paciente.var_nombre_paciente = var_nombre_paciente.get()
             paciente.var_apellido_paciente = var_apellido_paciente.get()
+            paciente.save()
+            id_paciente = paciente.id_pac
+            ventas.paciente_id = id_paciente
             ventas.proveedor_id= proveedor.get()
             ventas.producto = producto.get()
             ventas.var_cantidad = var_cantidad.get()
@@ -224,7 +227,6 @@ class ModeloPoo():
             ventas.fecha_inicio = var_fecha_inicio
             ventas.metodo_pago = var_metodo_pago.get()
             
-            paciente.save()
             productos.save()
             ventas.save() 
             proveedores.save()
@@ -290,48 +292,39 @@ class ModeloPoo():
         var_metodo_pago,
         tree,
     ):
-        cadena = var_nombre_paciente.get()
-        patron_letras = "^[A-Za-záéíóúñ]*$"  
-        cadena1 = var_apellido_paciente.get()
-
-        if re.match(patron_letras, cadena) and re.match(patron_letras, cadena1):
-            valor = tree.selection()
-            item = tree.item(valor)
-            mi_id = item["text"]
-            valor = (mi_id)
-            modifica = Ventas.get(Ventas.id == valor)
-            modifica = Ventas.update(
-                dnipac=dnipac.get(),
-                #var_nombre_paciente = var_nombre_paciente.get(),
-                #var_apellido_paciente = var_apellido_paciente.get(),
-                proveedor = proveedor.get(),
-                producto = producto.get(),
-                var_cantidad = var_cantidad.get(),
-                precio = precio.get(),
-                var_medico = var_medico.get(),
-                var_metodo_pago = var_metodo_pago.get()
-            ).where(Ventas.id == valor)
-            modifica.execute()
-            valor1 = precio.get()
-            valor1 = int(valor1)
-            dnipac.set("")
-            var_nombre_paciente.set("")
-            var_apellido_paciente.set("")
-            proveedor.set("")
-            producto.set("")
-            var_cantidad.set("")
-            precio.set("")
-            var_medico.set("")
-            var_metodo_pago.set("")
-            self.actualizar_treeview(tree)
-            if valor1 >= 0:
-                print("HA MODIFICO UN REGISTRO")
-            else:
-                showinfo("valor - error")
-                raise ("Valor negativo permitido")
+        
+        valor = tree.selection()
+        item = tree.item(valor)
+        mi_id = item["text"]
+        valor = (mi_id)
+        modifica = Ventas.get(Ventas.id == valor)
+        modifica = Ventas.update(
+            dnipac=dnipac.get(),
+            proveedor = proveedor.get(),
+            producto = producto.get(),
+            var_cantidad = var_cantidad.get(),
+            precio = precio.get(),
+            medico = var_medico.get(),
+            metodo_pago = var_metodo_pago.get() 
+        ).where(Ventas.id == valor)
+        modifica.execute()
+        valor1 = precio.get()
+        valor1 = int(valor1)
+        dnipac.set("")
+        var_nombre_paciente.set("")
+        var_apellido_paciente.set("")
+        proveedor.set("")
+        producto.set("")
+        var_cantidad.set("")
+        precio.set("")
+        var_medico.set("")
+        var_metodo_pago.set("")
+        self.actualizar_treeview(tree)
+        if valor1 >= 0:
+            print("HA MODIFICO UN REGISTRO")
         else:
-            print("Error campo Modificar")
-            showinfo("Error Modificar")
+            showinfo("valor - error")
+            raise ("Valor negativo permitido")
 
     @selecciona_registros
     def seleccionar(
@@ -344,7 +337,6 @@ class ModeloPoo():
         var_cantidad,
         precio,
         var_medico,
-        var_fecha_inicio,
         metodo_de_pago,
         tree,
     ):
@@ -353,16 +345,14 @@ class ModeloPoo():
         mi_id = item["text"]
         mi_id = int(mi_id)
         valor = (mi_id)
-        #dnipac.set(item["values"][0])
-        #var_nombre_paciente.set(item["values"][1])
-        #var_apellido_paciente.set(item["values"][2])
         proveedor.set(item["values"][0])
         producto.set(item["values"][1])
         var_cantidad.set(item["values"][2])
         precio.set(item["values"][3])
         var_medico.set(item["values"][4])
-        #var_fecha_inicio.set(item["values"][8])
         metodo_de_pago.set(item["values"][5])
         print("HA SELECCIONADO UN REGISTRO")
+
+
 
     

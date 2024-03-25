@@ -28,7 +28,7 @@ class Ventanita:
         self.var_cantidad = StringVar()
         self.var_precio = StringVar()
         self.var_medico = StringVar()
-        self.var_fecha_inicio = dt.datetime.now().strftime("%Y-%m.%d %H:%M")
+        self.var_fecha_inicio = dt.datetime.now().strftime("%d/%m/%Y %H:%M")
 
         ###### VISTA ######
         self.root = windows
@@ -88,7 +88,7 @@ class Ventanita:
 
         # entries frame2
         self.entry_proveedor = ttk.Combobox(
-            main_frame2, textvariable=self.var_proveedor)
+            main_frame2, textvariable=self.var_proveedor, width=40)
         self.entry_proveedor.grid(row=1, column=0, padx=10, pady=10)
         provider = self.modelopoo1.get_lista_proveedores()
         provider = provider if provider else [{}]
@@ -97,7 +97,7 @@ class Ventanita:
         self.entry_proveedor['values'] = formatted_providers
         self.entry_proveedor.current(0)
         self.entry_producto = ttk.Combobox(
-            main_frame2, textvariable=self.var_producto)
+            main_frame2, textvariable=self.var_producto, width=40)
         self.entry_producto.grid(row=3, column=0, padx=10, pady=10)
         self.entry_proveedor.bind("<<ComboboxSelected>>", lambda _: self.setProvider (main_frame2))
         self.setProvider(main_frame2)
@@ -137,7 +137,7 @@ class Ventanita:
                                 "col4", "col5", "col6", "col7")
         self.tree.column("#0", width=50, minwidth=50, anchor="w")
         self.tree.column("col1", width=80, minwidth=80, anchor="w")
-        self.tree.column("col2", width=100, minwidth=80, anchor="w")
+        self.tree.column("col2", width=170, minwidth=170, anchor="w")
         self.tree.column("col3", width=80, minwidth=80, anchor="w")
         self.tree.column("col4", width=90, minwidth=80, anchor="w")
         self.tree.column("col5", width=100, minwidth=80, anchor="w")
@@ -149,9 +149,9 @@ class Ventanita:
         self.tree.heading("col2", text="Producto")
         self.tree.heading("col3", text="Cantidad")
         self.tree.heading("col4", text="Precio")
-        self.tree.heading("col5", text="Fecha")
+        self.tree.heading("col5", text="Medico")
         self.tree.heading("col6", text="Metodo de Pago")
-        self.tree.heading("col7", text="Medico")
+        self.tree.heading("col7", text="Fecha")
         self.tree.grid(row=14, column=0, columnspan=8)
 
         main_frame6 = tk.LabelFrame(self.root, text="")
@@ -207,7 +207,7 @@ class Ventanita:
                 self.var_cantidad,
                 self.var_precio,
                 self.var_medico,
-                self.var_fecha_inicio,
+                
                 self.var_metodo_pago,
                 self.tree,
             ),
