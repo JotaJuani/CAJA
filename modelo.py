@@ -7,24 +7,29 @@ from peewee import *
 
 db = SqliteDatabase("mi_base2.db")
 
+
 class BaseModel(Model):
     class Meta:
         database = db
 
+
 class id_proveedores(BaseModel):
     id = PrimaryKeyField()
     proveedores = CharField()
+
 
 class id_productos(BaseModel):
     id = PrimaryKeyField()
     idproveedor_id = ForeignKeyField(id_proveedores, to_field='id')
     PRODUCTOS = CharField()
 
+
 class pacientes(BaseModel):
     id_pac = PrimaryKeyField()
     dni = CharField()
     var_nombre_paciente = CharField()
     var_apellido_paciente = CharField()
+
 
 class Ventas(BaseModel):
     paciente_id = ForeignKeyField(model=pacientes, field='id_pac')
@@ -37,12 +42,14 @@ class Ventas(BaseModel):
     metodo_pago = CharField()
     dnipac = IntegerField()
 
+
 try:
     db.connect()
     db.create_tables([Ventas, id_proveedores, id_productos, pacientes])
 
 except:
     print("La tabla ya existe")
+
 
 def alta_alta(func):
     def wrapper(*args, **kwargs):
@@ -65,8 +72,9 @@ def alta_alta(func):
 
     return wrapper
 
+
 def baja_eliminacion(func):
-    def wrapper( *args, **kwargs):
+    def wrapper(*args, **kwargs):
         baja_registro = os.path.dirname(
             (os.path.abspath(__file__)) + "\\baja_registro.txt"
         )
@@ -79,6 +87,7 @@ def baja_eliminacion(func):
         return func(*args, **kwargs)
 
     return wrapper
+
 
 def modifica_registro(func):
     def wrapper(self, *args, **kwargs):
@@ -95,21 +104,25 @@ def modifica_registro(func):
 
     return wrapper
 
+
 def selecciona_registros(func):
-    def wrapper(self,*args, **kwargs):
+    def wrapper(self, *args, **kwargs):
         showinfo("SELECCION, REGISTRO")
         return func(self, *args, **kwargs)
 
     return wrapper
 
+
 def actu_actualizacion(func):
-    def wrapper(self,*args, **kwargs):
+    def wrapper(self, *args, **kwargs):
         showinfo("ACTUALIZA, BASE")
         return func(self, *args, **kwargs)
 
     return wrapper
 
+
 lista_proveedores = []
+
 
 class ModeloPoo():
     def __init__(
@@ -124,8 +137,9 @@ class ModeloPoo():
             listToReturn = lista_proveedores
         else:
             for proveedores in id_proveedores.select():
-                listToReturn.append(
-                    {"nombre": proveedores.proveedores, "id": proveedores.id})
+                if (proveedores.proveedores != None):
+                    listToReturn.append(
+                        {"nombre": proveedores.proveedores, "id": proveedores.id})
                 lista_proveedores = listToReturn
         return listToReturn
 
@@ -145,43 +159,44 @@ class ModeloPoo():
         records = mitreview.get_children()
         for element in records:
             mitreview.delete(element)
-           
+
         for fila in Ventas.select():
             mitreview.insert("", 0, text=fila.id,
-                values=(
-                    fila.proveedor_id,
-                    fila.producto,
-                    fila.var_cantidad,
-                    fila.precio,    
-                    fila.medico,
-                    fila.metodo_pago,
-                    fila.fecha_inicio                    
-                ) 
-            )
+                             values=(
+                                 fila.proveedor_id,
+                                 fila.producto,
+                                 fila.var_cantidad,
+                                 fila.precio,
+                                 fila.medico,
+                                 fila.metodo_pago,
+                                 fila.fecha_inicio
+                             )
+                             )
+
 
     def imprimir(self, fecha_inicio, dnipac, producto, proveedor, cantidad, precio, var_metodo_pago):
-            doc = DocxTemplate("invoice1.docx")
-            fecha_inicio = datetime.now().strftime("%Y-%m-%d")
-            dnipac = dnipac.get()
-            producto = producto.get()        
-            proveedor = proveedor.get()
-            cantidad = cantidad.get()
-            precio = precio.get()
-            var_metodo_pago = var_metodo_pago.get() 
+        doc = DocxTemplate("invoice1.docx")
+        fecha_inicio = datetime.now().strftime("%Y-%m-%d")
+        dnipac = dnipac.get()
+        producto = producto.get()
+        proveedor = proveedor.get()
+        cantidad = cantidad.get()
+        precio = precio.get()
+        var_metodo_pago = var_metodo_pago.get()
 
-            doc.render({"var_fecha_inicio": fecha_inicio,
-                        "var_dnipac": dnipac,
-                        "var_producto": producto,
-                        "var_proveedor": proveedor,
-                        "var_cantidad": cantidad,
-                        "var_precio": precio, 
-                        "metodo_pago": var_metodo_pago,
-                        })
+        doc.render({"var_fecha_inicio": fecha_inicio,
+                    "var_dnipac": dnipac,
+                    "var_producto": producto,
+                    "var_proveedor": proveedor,
+                    "var_cantidad": cantidad,
+                    "var_precio": precio,
+                    "metodo_pago": var_metodo_pago,
+                    })
 
-            doc_name =  producto + "Recibo_de_venta" +\
-                datetime.now().strftime("%Y-%m-%d") + ".docx"
-            doc.save(doc_name)
-            showinfo("Alta recibo", "El recibo esta listo para imprimir")
+        doc_name = producto + "Recibo_de_venta" +\
+            datetime.now().strftime("%Y-%m-%d") + ".docx"
+        doc.save(doc_name)
+        showinfo("Alta recibo", "El recibo esta listo para imprimir")
 
     @alta_alta
     def alta(
@@ -199,13 +214,13 @@ class ModeloPoo():
         tree,
     ):
         cadena = var_nombre_paciente.get()
-        patron_letras = "^[A-Za-záéíóúñ  ]*$" 
+        patron_letras = "^[A-Za-záéíóúñ]*$"
         cadena1 = var_apellido_paciente.get()
         if not re.match(patron_letras, cadena):
             print("Error in nombre")
         if not re.match(patron_letras, cadena1):
             print("Error in apellido")
- 
+
         if re.match(patron_letras, cadena) and re.match(patron_letras, cadena1):
             ventas = Ventas()
             paciente = pacientes()
@@ -218,7 +233,7 @@ class ModeloPoo():
             paciente.save()
             id_paciente = paciente.id_pac
             ventas.paciente_id = id_paciente
-            ventas.proveedor_id= proveedor.get()
+            ventas.proveedor_id = proveedor.get()
             ventas.producto = producto.get()
             ventas.var_cantidad = var_cantidad.get()
             ventas.precio = precio.get()
@@ -226,11 +241,11 @@ class ModeloPoo():
             ventas.medico = var_medico.get()
             ventas.fecha_inicio = var_fecha_inicio
             ventas.metodo_pago = var_metodo_pago.get()
-            
+
             productos.save()
-            ventas.save() 
+            ventas.save()
             proveedores.save()
- 
+
             valor = precio.get()
             valor = int(valor)
             valor_registro = (
@@ -292,7 +307,7 @@ class ModeloPoo():
         var_metodo_pago,
         tree,
     ):
-        
+
         valor = tree.selection()
         item = tree.item(valor)
         mi_id = item["text"]
@@ -300,12 +315,12 @@ class ModeloPoo():
         modifica = Ventas.get(Ventas.id == valor)
         modifica = Ventas.update(
             dnipac=dnipac.get(),
-            proveedor = proveedor.get(),
-            producto = producto.get(),
-            var_cantidad = var_cantidad.get(),
-            precio = precio.get(),
-            medico = var_medico.get(),
-            metodo_pago = var_metodo_pago.get() 
+            proveedor=proveedor.get(),
+            producto=producto.get(),
+            var_cantidad=var_cantidad.get(),
+            precio=precio.get(),
+            medico=var_medico.get(),
+            metodo_pago=var_metodo_pago.get()
         ).where(Ventas.id == valor)
         modifica.execute()
         valor1 = precio.get()
@@ -352,7 +367,3 @@ class ModeloPoo():
         var_medico.set(item["values"][4])
         metodo_de_pago.set(item["values"][5])
         print("HA SELECCIONADO UN REGISTRO")
-
-
-
-    

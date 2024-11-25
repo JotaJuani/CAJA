@@ -3,18 +3,20 @@ import datetime as dt
 from tkinter import StringVar, Label, Entry, ttk, Radiobutton, Button
 from modelo import ModeloPoo
 
+
 class Ventanita:
     def setProvider(self, main_frame2):
         provider = self.modelopoo1.getProviderByIndex(
             self.entry_proveedor.current())
         print(provider)
-    
+
         product = self.modelopoo1.get_lista_productos(provider)
         product = product if product else [{}]
-        formatted_products = [ f"{prod ['nombre']}" for prod in product if 'nombre' in prod]
+        formatted_products = [
+            f"{prod ['nombre']}" for prod in product if 'nombre' in prod]
 
         self.entry_producto['values'] = formatted_products
- 
+
     def __init__(self, windows):
 
         self.modelopoo1 = ModeloPoo()
@@ -33,7 +35,7 @@ class Ventanita:
         ###### VISTA ######
         self.root = windows
         self.root.title("Ortopedia Almafuete ")
-        self.root.geometry("800x760")
+        self.root.geometry("840x695")
 
         self.root = tk.Frame()
         self.root.pack()
@@ -42,49 +44,49 @@ class Ventanita:
         # frame 1
         main_frame1 = tk.LabelFrame(
             self.root, width=500, height=75, text="Ingrese los datos del paciente")
-        main_frame1.grid(row=0, column=0, padx=10, pady=10)
+        main_frame1.grid(row=0, column=0, padx=5, pady=5)
         # labels 1
         self.dnipac = Label(
             main_frame1, text="DNI", bg="#FFCCCC")
-        self.dnipac.grid(row=0, column=0, padx=10, pady=10)
+        self.dnipac.grid(row=0, column=0, padx=5, pady=5)
 
         self.name_paciente = Label(
             main_frame1, text="Nombre", bg="#FFCCCC")
-        self.name_paciente.grid(row=0, column=1, padx=10, pady=10)
+        self.name_paciente.grid(row=0, column=1, padx=5, pady=5)
 
         self.surname_paciente = Label(
             main_frame1, text="Apellido", bg="#FFCCCC")
-        self.surname_paciente.grid(row=0, column=3, padx=10, pady=10)
+        self.surname_paciente.grid(row=0, column=3, padx=5, pady=5)
 
         # entries frame1
         self.entry_dnipac = Entry(
             main_frame1, textvariable=self.var_dnipac, bg="#FFDDDD")
-        self.entry_dnipac.grid(row=1, column=0, padx=10, pady=10)
+        self.entry_dnipac.grid(row=1, column=0, padx=5, pady=5)
 
         self.entry_nombre_paciente = Entry(
             main_frame1, textvariable=self.var_nombre_paciente, bg="#FFDDDD")
-        self.entry_nombre_paciente.grid(row=1, column=1, padx=10, pady=10)
+        self.entry_nombre_paciente.grid(row=1, column=1, padx=5, pady=5)
 
         self.entry_surname_paciente = Entry(
             main_frame1, textvariable=self.var_apellido_paciente, bg="#FFDDDD")
-        self.entry_surname_paciente.grid(row=1, column=3, padx=10, pady=10)
+        self.entry_surname_paciente.grid(row=1, column=3, padx=5, pady=5)
 
         # frame 2
         main_frame2 = tk.LabelFrame(self.root, text="Datos del producto")
-        main_frame2.grid(row=1, column=0, sticky="nswe", padx=10, pady=10)
+        main_frame2.grid(row=1, column=0, sticky="nswe", padx=5, pady=5)
         # labels 2
         self.proveedor = Label(main_frame2, text="Proveedor", bg="#FFCCCC")
         self.proveedor.grid(row=0, column=0, sticky="w", padx=10, pady=10)
         self.producto = Label(main_frame2, text="Producto", bg="#FFCCCC")
-        self.producto.grid(row=2, column=0, sticky="w", padx=10, pady=10)
+        self.producto.grid(row=2, column=0, sticky="w", padx=5, pady=5)
 
         self.cantidad = Label(main_frame2, text="Cantidad", bg="#FFCCCC")
-        self.cantidad.grid(row=0, column=1, sticky="w", padx=10, pady=10)
+        self.cantidad.grid(row=0, column=1, sticky="w", padx=5, pady=5)
 
         self.precio = Label(main_frame2, text="Precio", bg="#FFCCCC")
-        self.precio.grid(row=2, column=1, sticky="w", padx=10, pady=10)
+        self.precio.grid(row=2, column=1, sticky="w", padx=5, pady=5)
         self.medico = Label(main_frame2, text="Medico", bg="#FFCCCC")
-        self.medico.grid(row=1, column=3, sticky="w", padx=20, pady=10)
+        self.medico.grid(row=1, column=3, sticky="w", padx=5, pady=5)
 
         # entries frame2
         self.entry_proveedor = ttk.Combobox(
@@ -99,13 +101,14 @@ class Ventanita:
         self.entry_producto = ttk.Combobox(
             main_frame2, textvariable=self.var_producto, width=40)
         self.entry_producto.grid(row=3, column=0, padx=10, pady=10)
-        self.entry_proveedor.bind("<<ComboboxSelected>>", lambda _: self.setProvider (main_frame2))
+        self.entry_proveedor.bind(
+            "<<ComboboxSelected>>", lambda _: self.setProvider(main_frame2))
         self.setProvider(main_frame2)
 
         self.entry_cantidad = ttk.Spinbox(
-        main_frame2, from_=1, to_=10, textvariable=self.var_cantidad)
+            main_frame2, from_=1, to_=10, textvariable=self.var_cantidad)
         self.entry_cantidad.grid(row=1, column=1, padx=10, pady=10)
-        self.var_cantidad.set("1") 
+        self.var_cantidad.set("1")
 
         self.entry_precio = Entry(
             main_frame2, textvariable=self.var_precio, bg="#FFDDDD")
@@ -130,7 +133,7 @@ class Ventanita:
 
         # frame 4
         main_frame4 = tk.LabelFrame(self.root, text="Ventas")
-        main_frame4.grid(row=3, column=0, sticky="nswe", padx=10, pady=10)
+        main_frame4.grid(row=3, column=0, sticky="nswe", padx=5, pady=5)
 
         self.tree = ttk.Treeview(main_frame4)
         self.tree["columns"] = ("col1", "col2", "col3",
@@ -155,7 +158,7 @@ class Ventanita:
         self.tree.grid(row=14, column=0, columnspan=8)
 
         main_frame6 = tk.LabelFrame(self.root, text="")
-        main_frame6.grid(row=4, column=0, sticky="nswe", padx=10, pady=10)
+        main_frame6.grid(row=4, column=0, sticky="nswe", padx=5, pady=5)
 
         ### BOTONES ######
         self.boton_alta = Button(
@@ -207,7 +210,7 @@ class Ventanita:
                 self.var_cantidad,
                 self.var_precio,
                 self.var_medico,
-                
+
                 self.var_metodo_pago,
                 self.tree,
             ),
